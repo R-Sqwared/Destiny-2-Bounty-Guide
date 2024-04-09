@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Destiny 2 Character Details</title>
+    <title>Monochromatic Shader Details</title>
 </head>
 <body>
-    <h1>Destiny 2 Character Details</h1>
+    <h1>Monochromatic Shader Details</h1>
 
-    <div id="character-details"></div>
+    <div id="shader-details"></div>
 
     <script>
         // Retrieve the membership ID obtained during login
         const membershipId = localStorage.getItem('membershipId');
 
-        async function fetchCharacterDetails() {
+        async function fetchShaderDetails() {
             try {
                 // Check if membership ID exists
                 if (!membershipId) {
@@ -22,48 +22,53 @@
                 }
 
                 // Construct the API request URL with the membership ID
-                const apiUrl = `https://www.bungie.net/Platform/Destiny2/4/Profile/${membershipId}/?components=200`;
+                const apiUrl = `https://www.bungie.net/Platform/Destiny2/4/Profile/${membershipId}/?components=100`;
 
-                // Fetch character details using the constructed URL
+                // Fetch profile details using the constructed URL
                 const response = await fetch(apiUrl, {
                     headers: {
-                        'X-API-Key': 'Your-API-Key-Here' // Replace with your Bungie API key
+                        'X-API-Key': '50c216c06cf042c3a5b82cdf3ec79bc6' // Replace with your Bungie API key
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch character details');
+                    throw new Error('Failed to fetch profile details');
                 }
 
                 const data = await response.json();
 
-                // Check if response contains character data
-                if (!data.Response || !data.Response.characters || !data.Response.characters.data) {
-                    throw new Error('Character data not found in response');
+                // Check if response contains profile data
+                if (!data.Response || !data.Response.profileInventory || !data.Response.profileInventory.data || !data.Response.profileInventory.data.items) {
+                    throw new Error('Profile inventory data not found in response');
                 }
 
-                const characters = Object.values(data.Response.characters.data);
+                const items = data.Response.profileInventory.data.items;
 
-                // Display character details on the page
-                const characterDetailsContainer = document.getElementById('character-details');
-                characterDetailsContainer.innerHTML = '';
-                characters.forEach(character => {
-                    const characterElement = document.createElement('div');
-                    characterElement.innerHTML = `
-                        <h2>${character.classType}</h2>
-                        <p>Light Level: ${character.light}</p>
-                        <p>Race: ${character.race}</p>
-                        <p>Gender: ${character.gender}</p>
-                    `;
-                    characterDetailsContainer.appendChild(characterElement);
-                });
+                // Find the Monochromatic Shader item
+                const monochromaticShader = items.find(item => item.itemHash === 4248210736); // Item hash for Monochromatic Shader
+
+                // Check if Monochromatic Shader was found
+                if (!monochromaticShader) {
+                    throw new Error('Monochromatic Shader not found in inventory');
+                }
+
+                // Extract shader icon URL and name
+                const shaderIconUrl = monochromaticShader.displayProperties.icon;
+                const shaderName = monochromaticShader.displayProperties.name;
+
+                // Display shader details on the page
+                const shaderDetailsContainer = document.getElementById('shader-details');
+                shaderDetailsContainer.innerHTML = `
+                    <img src="${shaderIconUrl}" alt="${shaderName} Icon">
+                    <h2>${shaderName}</h2>
+                `;
             } catch (error) {
-                console.error('Error fetching character details:', error.message);
+                console.error('Error fetching shader details:', error.message);
             }
         }
 
-        // Call the fetchCharacterDetails function when the page loads
-        window.onload = fetchCharacterDetails;
+        // Call the fetchShaderDetails function when the page loads
+        window.onload = fetchShaderDetails;
     </script>
 </body>
 </html>
