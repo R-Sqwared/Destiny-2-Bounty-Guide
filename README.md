@@ -1,0 +1,1 @@
+Hello all. I am NOT a programmer by any means of the word, but I am trying to create a tool to help people keep track of their bounties in the video game Destiny 2. I want this stie to access the Destiny 2 API and show players what bounties they have completed, and which bounties are still incomplete. any help would be greatly appreciated!!!
