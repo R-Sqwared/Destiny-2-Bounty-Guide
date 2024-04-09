@@ -11,9 +11,16 @@
     <div id="character-details"></div>
 
     <script>
+        // Retrieve the membership ID obtained during login
+        const membershipId = localStorage.getItem('membershipId');
+
         async function fetchCharacterDetails() {
             try {
-                const response = await fetch('https://www.bungie.net/Platform/Destiny2/4/Profile/{membershipId}/?components=200');
+                // Dynamically construct the API request URL with the membership ID
+                const apiUrl = `https://www.bungie.net/Platform/Destiny2/4/Profile/${membershipId}/?components=200`;
+
+                // Fetch character details using the constructed URL
+                const response = await fetch(apiUrl);
                 const data = await response.json();
                 
                 // Extract character details from the response
@@ -37,6 +44,7 @@
             }
         }
 
+        // Call the fetchCharacterDetails function when the page loads
         window.onload = fetchCharacterDetails;
     </script>
 </body>
