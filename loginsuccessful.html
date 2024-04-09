@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destiny 2 Character Details</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #character-details {
+            margin-top: 20px;
+        }
+
+        #loading-message {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Destiny 2 Character Details</h1>
+        <div id="login-status"></div>
+        <button id="login-button" onclick="loginWithBungie()">Login with Bungie.net</button>
+        <div id="loading-message">Loading...</div>
+        <div id="character-details"></div>
+    </div>
+
+    <script>
+        const clientId = 46579;
+        const redirectUri = encodeURIComponent('loginsuccessful.html');
+
+        function loginWithBungie() {
+            window.location.href = `https://www.bungie.net/en/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}`;
+        }
+
+        async function fetchCharacterDetails(accessToken) {
+            try {
+                const response = await fetch('https://www.bungie.net/Platform/User/GetMembershipsForCurrentUser/', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.json();
+                const membershipId = data.Response.destinyMemberships[0].membershipId;
+
+                const characterResponse = await fetch(`https://www.bungie.net/Platform/Destiny2/3/Profile/${membershipId}/?components=200`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const characterData = await characterResponse.json();
+                return characterData.Response.characters.data;
+            } catch (error) {
+                console.error('Error fetching character details:', error);
+                return null;
+            }
+        }
+
+        function displayCharacterDetails(characterDetails) {
+            const characterDetailsElement = document.getElementById('character-details');
+            characterDetailsElement.innerHTML = '';
+
+            for (const characterId in characterDetails) {
+                const character = characterDetails[characterId];
+                const characterElement = document.createElement('div');
+                characterElement.innerHTML = `<h2>Character ${character.characterId}</h2>`;
+                characterElement.innerHTML += `<p>Name: ${character.name}</p>`;
+                characterElement.innerHTML += `<p>Race: ${character.race}</p>`;
+                characterElement.innerHTML += `<p>Class: ${character.classType}</p>`;
+                characterElement.innerHTML += `<p>Power Level: ${character.light}</p>`;
+                characterDetailsElement.appendChild(characterElement);
+            }
+        }
+
+        function checkLoginStatus() {
+            const accessToken = localStorage.getItem('bungieAccessToken');
+            if (accessToken) {
+                document.getElementById('login-status').innerHTML = 'Logged in';
+                document.getElementById('loading-message').style.display = 'block';
+                fetchCharacterDetails(accessToken).then(characterDetails => {
+                    if (characterDetails) {
+                        displayCharacterDetails(characterDetails);
+                    } else {
+                        document.getElementById('character-details').innerHTML = 'Failed to fetch character details.';
+                    }
+                    document.getElementById('loading-message').style.display = 'none';
+                });
+            } else {
+                document.getElementById('login-status').innerHTML = 'Not logged in';
+            }
+        }
+
+        window.onload = checkLoginStatus;
+    </script>
+</body>
+</html>
