@@ -3,38 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Details</title>
+    <title>Logged In</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>User Details</h1>
-
-    <div id="user-details"></div>
+    <div id="bungieName"></div>
+    <div id="bungieId"></div>
 
     <script>
-        // Retrieve the membership ID and Bungie display name obtained during login
-        const membershipId = localStorage.getItem('membershipId');
-        const bungieDisplayName = localStorage.getItem('bungieDisplayName');
-
-        function displayUserDetails() {
-            try {
-                // Check if membership ID and Bungie display name exist
-                if (!membershipId || !bungieDisplayName) {
-                    throw new Error('Membership ID or Bungie display name not found');
-                }
-
-                // Display user details on the page
-                const userDetailsContainer = document.getElementById('user-details');
-                userDetailsContainer.innerHTML = `
-                    <h2>Bungie Display Name: ${bungieDisplayName}</h2>
-                    <p>Membership ID: ${membershipId}</p>
-                `;
-            } catch (error) {
-                console.error('Error displaying user details:', error.message);
+        $(document).ready(function() {
+            // Function to get URL parameters
+            function getUrlParam(param) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
             }
-        }
 
-        // Call the displayUserDetails function when the page loads
-        window.onload = displayUserDetails;
+            // Retrieve the access token from URL parameter
+            const accessToken = getUrlParam('code');
+            if (accessToken) {
+                // Store the access token in local storage
+                localStorage.setItem('bungieAccessToken', accessToken);
+
+                // Use the access token to make API requests
+                $.ajax({
+                    url: 'https://www.bungie.net/Platform/User/GetBungieNetUser/',
+                    headers: {
+                        'X-API-Key': '50c216c06cf042c3a5b82cdf3ec79bc6',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    success: function(response) {
+                        // Display user's Bungie Name and ID
+                        $('#bungieName').text('Bungie Name: ' + response.Response.displayName);
+                        $('#bungieId').text('Bungie ID: ' + response.Response.membershipId);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            } else {
+                console.error('Access token not found.');
+            }
+        });
     </script>
 </body>
 </html>
