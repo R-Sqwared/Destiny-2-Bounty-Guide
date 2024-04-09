@@ -3,72 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monochromatic Shader Details</title>
+    <title>User Details</title>
 </head>
 <body>
-    <h1>Monochromatic Shader Details</h1>
+    <h1>User Details</h1>
 
-    <div id="shader-details"></div>
+    <div id="user-details"></div>
 
     <script>
-        // Retrieve the membership ID obtained during login
+        // Retrieve the membership ID and Bungie display name obtained during login
         const membershipId = localStorage.getItem('membershipId');
+        const bungieDisplayName = localStorage.getItem('bungieDisplayName');
 
-        async function fetchShaderDetails() {
+        function displayUserDetails() {
             try {
-                // Check if membership ID exists
-                if (!membershipId) {
-                    throw new Error('Membership ID not found');
+                // Check if membership ID and Bungie display name exist
+                if (!membershipId || !bungieDisplayName) {
+                    throw new Error('Membership ID or Bungie display name not found');
                 }
 
-                // Construct the API request URL with the membership ID
-                const apiUrl = `https://www.bungie.net/Platform/Destiny2/4/Profile/${membershipId}/?components=100`;
-
-                // Fetch profile details using the constructed URL
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        'X-API-Key': '50c216c06cf042c3a5b82cdf3ec79bc6' // Replace with your Bungie API key
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch profile details');
-                }
-
-                const data = await response.json();
-
-                // Check if response contains profile data
-                if (!data.Response || !data.Response.profileInventory || !data.Response.profileInventory.data || !data.Response.profileInventory.data.items) {
-                    throw new Error('Profile inventory data not found in response');
-                }
-
-                const items = data.Response.profileInventory.data.items;
-
-                // Find the Monochromatic Shader item
-                const monochromaticShader = items.find(item => item.itemHash === 4248210736); // Item hash for Monochromatic Shader
-
-                // Check if Monochromatic Shader was found
-                if (!monochromaticShader) {
-                    throw new Error('Monochromatic Shader not found in inventory');
-                }
-
-                // Extract shader icon URL and name
-                const shaderIconUrl = `https://www.bungie.net${monochromaticShader.displayProperties.icon}`;
-                const shaderName = monochromaticShader.displayProperties.name;
-
-                // Display shader details on the page
-                const shaderDetailsContainer = document.getElementById('shader-details');
-                shaderDetailsContainer.innerHTML = `
-                    <img src="${shaderIconUrl}" alt="${shaderName} Icon">
-                    <h2>${shaderName}</h2>
+                // Display user details on the page
+                const userDetailsContainer = document.getElementById('user-details');
+                userDetailsContainer.innerHTML = `
+                    <h2>Bungie Display Name: ${bungieDisplayName}</h2>
+                    <p>Membership ID: ${membershipId}</p>
                 `;
             } catch (error) {
-                console.error('Error fetching shader details:', error.message);
+                console.error('Error displaying user details:', error.message);
             }
         }
 
-        // Call the fetchShaderDetails function when the page loads
-        window.onload = fetchShaderDetails;
+        // Call the displayUserDetails function when the page loads
+        window.onload = displayUserDetails;
     </script>
 </body>
 </html>
