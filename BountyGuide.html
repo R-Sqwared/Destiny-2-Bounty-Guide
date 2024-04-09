@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destiny 2 Bounty Guide</title>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="H:\!Site Project\styles.css">
+    <style>
+        /* Style for the container */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.contentstack.io/v3/assets/blte410e3b15535c144/bltb25bf4bd29f68b8f/64da4fd747ddbc0a2ac97b51/tfs-bg-coda-sm.jpg?format=webp');
+            background-size: cover;
+            background-position: center;
+            z-index: -1; /* Ensure the container stays behind other content */
+        }
+
+        /* Style to center the container horizontally */
+        .center-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1; /* Ensure the container stays above the background */
+        }
+
+        /* Style for the "Destiny 2 Bounty Guide" text */
+        h1 {
+            color: #c90000; /* HEX color code */
+            font-size: 96px; /* Increase font size */
+        }
+
+        /* Style for the login button */
+        button {
+            padding: 16px 32px; /* Increase button padding */
+            background-color: #4450E7; /* Change button background color */
+            color: #FFFFFF; /* Change button text color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 40px; /* Increase font size */
+        }
+    </style>
+</head>
+<body>
+    <!-- Background container -->
+    <div class="background-container"></div>
+
+    <!-- Centered container -->
+    <div class="center-container">
+        <!-- "Destiny 2 Bounty Guide" text -->
+        <h1>Destiny 2 Bounty Guide</h1>
+        <!-- Login button -->
+        <button onclick="loginWithBungie()">Login with Bungie.net</button>
+    </div>
+
+    <script>
+        const clientId = 46579;
+
+        function loginWithBungie() {
+            window.location.href = `https://www.bungie.net/en/oauth/authorize?client_id=${clientId}&response_type=code`;
+        }
+
+        async function fetchBounties() {
+            const completedBounties = await fetchCompletedBounties();
+            const availableBounties = await fetchAvailableBounties();
+
+            return { completedBounties, availableBounties };
+        }
+
+        function displayBounties(completedBounties, availableBounties) {
+            const bountiesContainer = document.getElementById('bounties-container');
+
+            completedBounties.forEach(bounty => {
+                const bountyElement = document.createElement('div');
+                bountyElement.textContent = `Completed Bounty: ${bounty.name}`;
+                bountiesContainer.appendChild(bountyElement);
+            });
+
+            availableBounties.forEach(bounty => {
+                const bountyElement = document.createElement('div');
+                bountyElement.textContent = `Available Bounty: ${bounty.name}`;
+                bountiesContainer.appendChild(bountyElement);
+            });
+        }
+
+        function checkLoginStatus() {
+            const accessToken = localStorage.getItem('bungieAccessToken');
+            if (accessToken) {
+                document.getElementById('login-status').textContent = 'Logged in';
+                fetchBounties().then(({ completedBounties, availableBounties }) => {
+                    displayBounties(completedBounties, availableBounties);
+                });
+            } else {
+                document.getElementById('login-status').textContent = 'Not logged in';
+            }
+        }
+
+        window.onload = checkLoginStatus;
+    </script>
+</body>
+</html>
