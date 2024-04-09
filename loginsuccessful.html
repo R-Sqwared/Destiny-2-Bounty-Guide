@@ -16,16 +16,34 @@
 
         async function fetchCharacterDetails() {
             try {
-                // Dynamically construct the API request URL with the membership ID
+                // Check if membership ID exists
+                if (!membershipId) {
+                    throw new Error('Membership ID not found');
+                }
+
+                // Construct the API request URL with the membership ID
                 const apiUrl = `https://www.bungie.net/Platform/Destiny2/4/Profile/${membershipId}/?components=200`;
 
                 // Fetch character details using the constructed URL
-                const response = await fetch(apiUrl);
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'X-API-Key': 'Your-API-Key-Here' // Replace with your Bungie API key
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch character details');
+                }
+
                 const data = await response.json();
-                
-                // Extract character details from the response
-                const characters = data.Response.characters.data;
-                
+
+                // Check if response contains character data
+                if (!data.Response || !data.Response.characters || !data.Response.characters.data) {
+                    throw new Error('Character data not found in response');
+                }
+
+                const characters = Object.values(data.Response.characters.data);
+
                 // Display character details on the page
                 const characterDetailsContainer = document.getElementById('character-details');
                 characterDetailsContainer.innerHTML = '';
@@ -40,7 +58,7 @@
                     characterDetailsContainer.appendChild(characterElement);
                 });
             } catch (error) {
-                console.error('Error fetching character details:', error);
+                console.error('Error fetching character details:', error.message);
             }
         }
 
