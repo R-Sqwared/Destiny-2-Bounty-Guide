@@ -4,46 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Logged In</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <div id="bungieName"></div>
-    <div id="bungieId"></div>
-
+    <!-- Include Axios library using CDN link -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Function to get URL parameters
-            function getUrlParam(param) {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);
-            }
+        const apiKey = '50c216c06cf042c3a5b82cdf3ec79bc6';
+        const clientId = '46579';
+        const clientSecret = '6VmpkRVe9ZQ7Hj-LHG4.igDJJnqlIffXveNwF0JqoVI';
 
-            // Retrieve the access token from URL parameter
-            const accessToken = getUrlParam('code');
-            if (accessToken) {
-                // Store the access token in local storage
-                localStorage.setItem('bungieAccessToken', accessToken);
-
-                // Use the access token to make API requests
-                $.ajax({
-                    url: 'https://www.bungie.net/Platform/User/GetBungieNetUser/',
+        async function fetchBungieName() {
+            try {
+                const response = await axios.get(`https://www.bungie.net/Platform/User/GetMembershipsForCurrentUser/`, {
                     headers: {
-                        'X-API-Key': '50c216c06cf042c3a5b82cdf3ec79bc6',
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    success: function(response) {
-                        // Display user's Bungie Name and ID
-                        $('#bungieName').text('Bungie Name: ' + response.Response.displayName);
-                        $('#bungieId').text('Bungie ID: ' + response.Response.membershipId);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
+                        'X-API-Key': apiKey,
+                        'Authorization': `Basic ${btoa(clientId + ':' + clientSecret)}`
                     }
                 });
-            } else {
-                console.error('Access token not found.');
+                const bungieName = response.data.Response.bungieNetUser.displayName;
+                document.getElementById('bungieName').textContent = `Welcome, ${bungieName}!`;
+            } catch (error) {
+                console.error('Error fetching Bungie name:', error);
             }
-        });
+        }
+
+        window.onload = fetchBungieName;
     </script>
+</head>
+<body>
+    <h1 id="bungieName">Loading...</h1>
 </body>
 </html>
